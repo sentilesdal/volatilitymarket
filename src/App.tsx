@@ -50,7 +50,7 @@ function Body() {
       addresses.TicketManager,
       signer
     );
-    volatilityMarket.createBet(parseEther("0.01"), direction ? 1 : 0);
+    volatilityMarket.createBet(parseEther("0.01"), direction ? 1 : 2);
   }, [direction, signer]);
 
   return (
