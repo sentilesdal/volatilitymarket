@@ -11,7 +11,7 @@ import { VolatilityMarket__factory } from "./typechain-types";
 export const YourApp = () => {};
 
 const addresses = {
-  TicketManager: "0x2dbb2bfab0d9e7ffa3255611a5c497f45062cf41",
+  TicketManager: "0x43cf397b9d671b9b672df7c765bcaf1a28baf001",
 };
 
 function App() {
