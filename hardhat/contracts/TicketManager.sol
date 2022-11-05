@@ -24,7 +24,7 @@ contract VolatilityMarket {
 
     IERC20 public token;
 
-    uint256 disposableFunds = 1 ether;
+    uint256 disposableFunds = 0;
     uint256 requiredFunds = 1 wei;
     uint256 blockBuffer = 10 minutes;
     uint256 ticketCount = 0;
@@ -55,7 +55,7 @@ contract VolatilityMarket {
         token = IERC20(_token);
     }
 
-    //functions that will directly be invoked from the frontend
+    //functions that will direclty be invoked from the frontend
 
     function createBet(uint256 amount, Direction direction) public {
         token.transferFrom(msg.sender, address(this), amount);
@@ -115,10 +115,13 @@ contract VolatilityMarket {
         require(currentTicket.claimed == false, "Ticket claim require");
         require(msg.sender == currentTicket.owner, "Owner require check");
         require(
-            currentTicket.verifyTime > currentTicket.betTime,
+            block.timestamp > (currentTicket.betTime + blockBuffer),
             "TImestamp require check"
         );
-        require(currentTicket.amount < disposableFunds, "Enough Funds require");
+        require(
+            (currentTicket.amount * 2) < disposableFunds,
+            "Enough Funds require"
+        );
 
         Direction choice = currentTicket.direction;
 
@@ -149,13 +152,10 @@ contract VolatilityMarket {
         }
     }
 
-    function collectDeadTickets(uint256[] calldata ids) external {
-        uint256 i = 0;
-        while (i < ids.length) {
-            ticket memory currentTicket = tickets[ids[i]];
-            disposableFunds = disposableFunds + currentTicket.amount;
-        }
-    }
+    // function  collectDeadTickets() internal{
+    //Iterate over all events and index for events whose expiry has passed and have not been claimed.
+    //Add the bet amount to the available funds.
+    // }
 
     // Create an Optimistic oracle instance at the deployed address on Görli.
 
