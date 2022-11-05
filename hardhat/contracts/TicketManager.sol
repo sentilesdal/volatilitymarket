@@ -175,24 +175,6 @@ contract VolatilityMarket {
         oo.setCustomLiveness(identifier, requestTime, ancillaryData, 30);
     }
 
-    // Create an Optimistic oracle instance at the deployed address on Görli.
-
-    // Submit a data request to the Optimistic oracle.
-    function requestData() public {
-        requestTime = block.timestamp; // Set the request time to the current block time.
-        uint256 reward = 0; // Set the reward to 0 (so we dont have to fund it from this contract).
-
-        // Now, make the price request to the Optimistic oracle and set the liveness to 30 so it will settle quickly.
-        oo.requestPrice(
-            identifier,
-            block.timestamp,
-            ancillaryData,
-            token,
-            reward
-        );
-        oo.setCustomLiveness(identifier, requestTime, ancillaryData, 30);
-    }
-
     // Settle the request once it's gone through the liveness period of 30 seconds. This acts the finalize the voted on price.
     // In a real world use of the Optimistic Oracle this should be longer to give time to disputers to catch bat price proposals.
     function settleRequest() public {
