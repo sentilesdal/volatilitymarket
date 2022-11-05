@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import "./App.css";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { BigNumber } from "ethers";
+import { BigNumber, constants, Signer } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { chainId, useProvider, useSigner } from "wagmi";
 
-import { VolatilityMarket__factory } from "./typechain-types";
+import { IERC20__factory, VolatilityMarket__factory } from "./typechain-types";
 
 export const YourApp = () => {};
 
@@ -38,23 +38,19 @@ function Header() {
 }
 
 function Body() {
-  const { data: signer } = useSigner();
+  const { data: signerResult } = useSigner<Signer>();
+  const signer = signerResult as Signer;
   const tickets = useTickets();
   const [direction, setDirection] = useState(true);
-  const handleCreateTicket = useCallback(() => {
-    if (!signer) {
-      return;
-    }
-    const volatilityMarket = VolatilityMarket__factory.connect(
-      addresses.TicketManager,
-      signer
-    );
-    volatilityMarket.createBet(parseEther("0.001"), direction ? 1 : 2);
-  }, [direction, signer]);
+  const handleCreateTicket = useHandleCreateTicket(signer, direction);
+  const handleApprove = useHandleApprove(signer);
 
   return (
     <div className="flex justify-around w-full">
       <div className="flex align-middle space-x-4">
+        <button onClick={() => handleApprove()} className="btn btn-primary">
+          Approve
+        </button>
         <button
           onClick={() => handleCreateTicket()}
           className="btn btn-primary"
@@ -91,6 +87,34 @@ function Body() {
 
 interface TicketProps {
   id: string;
+}
+
+function useHandleCreateTicket(signer: Signer | undefined, direction: boolean) {
+  return useCallback(() => {
+    if (!signer) {
+      return;
+    }
+    const volatilityMarket = VolatilityMarket__factory.connect(
+      addresses.TicketManager,
+      signer
+    );
+    volatilityMarket.createBet(parseEther("0.001"), direction ? 1 : 2);
+  }, [direction, signer]);
+}
+
+function useHandleApprove(signer: Signer | undefined) {
+  return useCallback(async () => {
+    if (!signer) {
+      return;
+    }
+    const volatilityMarket = VolatilityMarket__factory.connect(
+      addresses.TicketManager,
+      signer
+    );
+    const tokenAddress = await volatilityMarket.token();
+    const token = IERC20__factory.connect(tokenAddress, signer);
+    await token.approve(addresses.TicketManager, constants.MaxUint256);
+  }, [signer]);
 }
 
 function Ticket(props: TicketProps) {
