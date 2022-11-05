@@ -25,19 +25,38 @@ contract VolatilityMarket{
 
     uint256 disposableFunds = 1 ether;
     uint256 requiredFunds = 1 wei;
+<<<<<<< HEAD
     uint blockBuffer = 10 minutes;
     uint ticketCount = 0;
 
     uint256 ticketCounter = 0;
 
     enum Direction {NONE, UP, DOWN}
+=======
+    uint256 blockBuffer = 10 minutes;
+    uint256 ticketCount = 0;
+
+    uint256 ticketCounter = 0;
+
+    enum Direction {
+        NONE,
+        UP,
+        DOWN
+    }
+>>>>>>> 998e98b (add methods to TicketManager)
 
     struct ticket {
         uint id;
         address owner;
+<<<<<<< HEAD
         uint betTime;
         uint verifyTime;
         uint amount;
+=======
+        uint256 betTime;
+        uint256 verifyTime;
+        uint256 amount;
+>>>>>>> 998e98b (add methods to TicketManager)
         Direction direction;
         bool claimed;
     }
@@ -50,6 +69,7 @@ contract VolatilityMarket{
         token = IERC20(_token);
     }
 
+<<<<<<< HEAD
     //functions that will directly be invoked from the frontend
 
     function createBet(uint256 amount, Direction direction) public {
@@ -83,17 +103,69 @@ contract VolatilityMarket{
         );
     }
 
+=======
+    //functions that will direclty be invoked from the frontend
+
+    function createBet(uint256 amount, Direction direction) public {
+        token.transferFrom(msg.sender, address(this), amount);
+        uint256 id = uint256(
+            keccak256(abi.encodePacked(msg.sender, block.timestamp))
+        );
+        tickets[id] = ticket(
+            id,
+            msg.sender,
+            block.timestamp,
+            block.timestamp,
+            amount,
+            direction,
+            false
+        );
+        requestData();
+        emit TicketCreated(id, msg.sender);
+    }
+>>>>>>> 998e98b (add methods to TicketManager)
+
+    function getTicket(uint256 _id)
+        public
+        returns (
+            uint256 id,
+            address owner_,
+            uint256 betTime,
+            uint256 verifyTime,
+            uint256 amount,
+            Direction direction,
+            bool claimed
+        )
+    {
+        return (
+            tickets[_id].id,
+            tickets[_id].owner,
+            tickets[_id].betTime,
+            tickets[_id].verifyTime,
+            tickets[_id].amount,
+            tickets[_id].direction,
+            tickets[_id].claimed
+        );
+    }
 
     function verifyBet(uint256 id) public {
         
         ticket storage currentTicket = tickets[id];
         require(msg.sender == currentTicket.owner, "First Check");
+<<<<<<< HEAD
         require(block.timestamp < (currentTicket.betTime + blockBuffer), "Second Check");
+=======
+        require(
+            block.timestamp < (currentTicket.betTime + blockBuffer),
+            "Second Check"
+        );
+>>>>>>> 998e98b (add methods to TicketManager)
         currentTicket.verifyTime = block.timestamp;
         requestData();
     }
 
     //Ticket is redeemed only within the time period
+<<<<<<< HEAD
     function redeemTicket(uint id) public {
 
         ticket memory currentTicket = tickets[id];
@@ -123,6 +195,71 @@ contract VolatilityMarket{
            ticket memory currentTicket = tickets[ids[i]];
            disposableFunds = disposableFunds + currentTicket.amount;
         }
+=======
+    function redeemTicket(uint256 id) public {
+        ticket memory currentTicket = tickets[id];
+        require(currentTicket.claimed == false, "Ticket claim require");
+        require(msg.sender == currentTicket.owner, "Owner require check");
+        require(
+            block.timestamp > (currentTicket.betTime + blockBuffer),
+            "TImestamp require check"
+        );
+        require(
+            (currentTicket.amount * 2) < disposableFunds,
+            "Enough Funds require"
+        );
+
+        Direction choice = currentTicket.direction;
+
+        int256 oldPrice = oo
+            .getRequest(
+                address(this),
+                identifier,
+                currentTicket.betTime,
+                ancillaryData
+            )
+            .resolvedPrice;
+        int256 newPrice = oo
+            .getRequest(
+                address(this),
+                identifier,
+                currentTicket.verifyTime,
+                ancillaryData
+            )
+            .resolvedPrice;
+
+        if (
+            ((choice == Direction.UP) && (oldPrice < newPrice)) ||
+            ((choice == Direction.DOWN) && (oldPrice > newPrice))
+        ) {
+            payable(msg.sender).transfer(currentTicket.amount * 2);
+            disposableFunds = disposableFunds - (currentTicket.amount);
+            currentTicket.claimed = true;
+        }
+    }
+
+    // function  collectDeadTickets() internal{
+    //Iterate over all events and index for events whose expiry has passed and have not been claimed.
+    //Add the bet amount to the available funds.
+    // }
+
+    // Create an Optimistic oracle instance at the deployed address on Görli.
+
+    // Submit a data request to the Optimistic oracle.
+    function requestData() public {
+        requestTime = block.timestamp; // Set the request time to the current block time.
+        uint256 reward = 0; // Set the reward to 0 (so we dont have to fund it from this contract).
+
+        // Now, make the price request to the Optimistic oracle and set the liveness to 30 so it will settle quickly.
+        oo.requestPrice(
+            identifier,
+            block.timestamp,
+            ancillaryData,
+            token,
+            reward
+        );
+        oo.setCustomLiveness(identifier, requestTime, ancillaryData, 30);
+>>>>>>> 998e98b (add methods to TicketManager)
     }
 
   // Create an Optimistic oracle instance at the deployed address on Görli.
