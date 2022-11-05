@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./App.css";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { BigNumber, Signer } from "ethers";
+import { BigNumber } from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import { chainId, useProvider, useSigner } from "wagmi";
 
 import { VolatilityMarket__factory } from "./typechain-types";
-import { parseEther } from "ethers/lib/utils";
 
 export const YourApp = () => {};
 
@@ -42,7 +42,6 @@ function Body() {
   const tickets = useTickets();
   const [direction, setDirection] = useState(true);
   const handleCreateTicket = useCallback(() => {
-    console.log("handleCreateTicket inner");
     if (!signer) {
       return;
     }
@@ -50,7 +49,7 @@ function Body() {
       addresses.TicketManager,
       signer
     );
-    volatilityMarket.createBet(parseEther("0.01"), direction ? 1 : 2);
+    volatilityMarket.createBet(parseEther("0.001"), direction ? 1 : 2);
   }, [direction, signer]);
 
   return (
