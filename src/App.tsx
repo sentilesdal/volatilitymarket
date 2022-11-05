@@ -38,8 +38,8 @@ function Header() {
 }
 
 function Body() {
-  const ticketCreatedEvents = useTickets();
-  console.log("ticketCreatedEvents", ticketCreatedEvents);
+  const tickets = useTickets();
+  console.log("tickets", tickets);
 
   return (
     <div className="flex justify-around w-full">
@@ -92,7 +92,7 @@ type TicketStruct = [
   BigNumber,
   BigNumber,
   BigNumber,
-  boolean,
+  number,
   boolean
 ] & {
   id: BigNumber;
@@ -100,7 +100,7 @@ type TicketStruct = [
   betTime: BigNumber;
   verifyTime: BigNumber;
   amount: BigNumber;
-  success: boolean;
+  direction: number;
   claimed: boolean;
 };
 function useTickets() {
@@ -118,7 +118,6 @@ function useTickets() {
       try {
         const filter = volatilityMarket.filters.TicketCreated();
         const result = await volatilityMarket.queryFilter(filter);
-        console.log("result", result);
         const ids = result.map((r) => r.args.id);
         const getTickets = ids.map((id) =>
           volatilityMarket.callStatic.tickets(id)
