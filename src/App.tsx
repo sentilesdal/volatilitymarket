@@ -42,7 +42,7 @@ function Body() {
   const tickets = useTickets();
   const [direction, setDirection] = useState(true);
   const handleCreateTicket = useCallback(() => {
-    console.log("handleCreateTicket");
+    console.log("handleCreateTicket inner");
     if (!signer) {
       return;
     }
@@ -56,7 +56,10 @@ function Body() {
   return (
     <div className="flex justify-around w-full">
       <div className="flex align-middle space-x-4">
-        <button onClick={() => handleCreateTicket} className="btn btn-primary">
+        <button
+          onClick={() => handleCreateTicket()}
+          className="btn btn-primary"
+        >
           Create new ticket
         </button>
         <div className="h-full">
