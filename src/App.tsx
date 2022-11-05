@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./App.css";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { BigNumber } from "ethers";
-import { chainId, useProvider } from "wagmi";
+import { BigNumber, Signer } from "ethers";
+import { chainId, useProvider, useSigner } from "wagmi";
 
 import { VolatilityMarket__factory } from "./typechain-types";
+import { parseEther } from "ethers/lib/utils";
 
 export const YourApp = () => {};
 
@@ -31,37 +32,56 @@ function Header() {
   return (
     <div className="flex justify-between p-2 w-full">
       <h1 className="text-5xl font-bold">Volatility Protocol</h1>
-      {/* <button className="btn btn-primary">Connect Wallet</button> */}
       <ConnectButton label="Connect" />
     </div>
   );
 }
 
 function Body() {
+  const { data: signer } = useSigner();
   const tickets = useTickets();
-  console.log("tickets", tickets);
+  const [direction, setDirection] = useState(true);
+  const handleCreateTicket = useCallback(() => {
+    console.log("handleCreateTicket");
+    if (!signer) {
+      return;
+    }
+    const volatilityMarket = VolatilityMarket__factory.connect(
+      addresses.TicketManager,
+      signer
+    );
+    volatilityMarket.createBet(parseEther("0.01"), direction ? 1 : 0);
+  }, [direction, signer]);
 
   return (
     <div className="flex justify-around w-full">
       <div className="flex align-middle space-x-4">
-        <button className="btn btn-primary">Create new ticket</button>
+        <button onClick={() => handleCreateTicket} className="btn btn-primary">
+          Create new ticket
+        </button>
         <div className="h-full">
           <input
             type="radio"
             name="radio-2"
             className="radio radio-primary"
-            checked
+            checked={direction}
+            onChange={() => setDirection(true)}
           />
         </div>
         <div className="h-full">
-          <input type="radio" name="radio-2" className="radio radio-primary" />
+          <input
+            type="radio"
+            name="radio-2"
+            className="radio radio-primary"
+            checked={!direction}
+            onChange={() => setDirection(false)}
+          />
         </div>
       </div>
       <div className="flex flex-col h-full text-center space-y-2">
-        <Ticket id="1" />
-        <Ticket id="2" />
-        <Ticket id="3" />
-        <Ticket id="4" />
+        {tickets.map((ticket) => (
+          <Ticket key={ticket.id.toHexString()} id={ticket.id.toHexString()} />
+        ))}
       </div>
     </div>
   );
@@ -76,7 +96,9 @@ function Ticket(props: TicketProps) {
   return (
     <div className="card w-96 bg-base-100 shadow-xl">
       <div className="card-body">
-        <h2 className="card-title">{`Ticket ${id}`}</h2>
+        <h2 className="card-title">{`Ticket ${id.slice(0, 6)}...${id.slice(
+          -4
+        )}`}</h2>
         <p></p>
         <div className="card-actions justify-end">
           <button className="btn btn-primary">Verify</button>
