@@ -49,6 +49,29 @@ contract VolatilityMarket {
         token = IERC20(_token);
     }
 
+    function getTicket(uint256 _id)
+        public
+        returns (
+            uint256 id,
+            address owner_,
+            uint256 betTime,
+            uint256 verifyTime,
+            uint256 amount,
+            bool success,
+            bool claimed
+        )
+    {
+        return (
+            tickets[_id].id,
+            tickets[_id].owner,
+            tickets[_id].betTime,
+            tickets[_id].verifyTime,
+            tickets[_id].amount,
+            tickets[_id].success,
+            tickets[_id].claimed
+        );
+    }
+
     //functions that will direclty be invoked from the frontend
 
     function createBet(uint256 amount) public {
