@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { BigNumber } from "ethers";
+import { chainId, useProvider } from "wagmi";
+
+import { VolatilityMarket__factory } from "./typechain-types";
 
 export const YourApp = () => {};
 
 const addresses = {
-  TicketManager: "0x5a3355f3D503bC6f6F1812357d12cAA9c2e14bcA",
+  TicketManager: "0x2dbb2bfab0d9e7ffa3255611a5c497f45062cf41",
 };
 
 function App() {
@@ -34,6 +38,9 @@ function Header() {
 }
 
 function Body() {
+  const ticketCreatedEvents = useTickets();
+  console.log("ticketCreatedEvents", ticketCreatedEvents);
+
   return (
     <div className="flex justify-around w-full">
       <div className="flex align-middle space-x-4">
@@ -77,4 +84,54 @@ function Ticket(props: TicketProps) {
       </div>
     </div>
   );
+}
+
+type TicketStruct = [
+  BigNumber,
+  string,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  boolean,
+  boolean
+] & {
+  id: BigNumber;
+  owner: string;
+  betTime: BigNumber;
+  verifyTime: BigNumber;
+  amount: BigNumber;
+  success: boolean;
+  claimed: boolean;
+};
+function useTickets() {
+  const provider = useProvider({ chainId: chainId.goerli });
+  const volatilityMarket = VolatilityMarket__factory.connect(
+    addresses.TicketManager,
+    provider
+  );
+
+  const [tickets, setTickets] = useState<TicketStruct[]>([]);
+
+  useEffect(() => {
+    fetchData();
+    async function fetchData() {
+      try {
+        const filter = volatilityMarket.filters.TicketCreated();
+        const result = await volatilityMarket.queryFilter(filter);
+        console.log("result", result);
+        const ids = result.map((r) => r.args.id);
+        const getTickets = ids.map((id) =>
+          volatilityMarket.callStatic.tickets(id)
+        );
+        const tickets: TicketStruct[] = await Promise.all(getTickets);
+        setTickets(tickets);
+      } catch (error) {
+        console.log("error", error);
+      }
+    }
+    // only want this to run once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return tickets;
 }
