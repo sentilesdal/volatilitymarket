@@ -143,7 +143,7 @@ contract VolatilityMarket {
             ((choice == Direction.UP) && (oldPrice < newPrice)) ||
             ((choice == Direction.DOWN) && (oldPrice > newPrice))
         ) {
-            payable(msg.sender).transfer(currentTicket.amount * 2);
+            token.transfer(msg.sender, currentTicket.amount * 2);
             disposableFunds = disposableFunds - (currentTicket.amount);
             currentTicket.claimed = true;
         }
