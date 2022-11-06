@@ -31,7 +31,7 @@ function Header() {
   return (
     <div className="text-sm flex justify-between p-2 w-full">
       <h1 className="text-5xl font-bold">Volatility Protocol</h1>
-      <ConnectButton chainStatus="icon" label="Connect" />
+      <ConnectButton chainStatus="icon" label="Connect Wallet" />
     </div>
   );
 }
