@@ -9,9 +9,8 @@ import { ApproveButton } from "./ApproveButton";
 import { Balance } from "./Balance";
 import { useAllowance } from "./hooks/useAllowance";
 import { useMarketInfo } from "./hooks/useMarketInfo";
-import { VolatilityMarket__factory } from "./typechain-types";
 import { toasts } from "./Toaster";
-import { time } from "console";
+import { VolatilityMarket__factory } from "./typechain-types";
 
 const maxAmount = parseEther("1");
 const minAmount = parseEther("0.01");
@@ -126,12 +125,20 @@ function useHandleCreateTicket(
       parseEther(amount),
       direction ? 1 : 2
     );
-    toasts[tx.hash] = { txHash: tx.hash };
+    toasts[tx.hash] = {
+      txHash: tx.hash,
+      message: "Transaction submitted",
+      status: "info",
+    };
     const timeoutId = setTimeout(() => delete toasts[tx.hash], 5000);
 
     tx.wait(1).then(() => {
       clearTimeout(timeoutId);
-      toasts[tx.hash] = { txHash: tx.hash };
+      toasts[tx.hash] = {
+        txHash: tx.hash,
+        message: "Transaction succeeded",
+        status: "success",
+      };
       setTimeout(() => delete toasts[tx.hash], 5000);
     });
   }, [amount, direction, signer]);
