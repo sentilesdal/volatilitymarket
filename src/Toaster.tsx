@@ -34,7 +34,10 @@ interface ToastProps {
 }
 function Toast(props: ToastProps) {
   const { toast } = props;
-  const className = `alert alert-${toast.status} text-white`;
+  let className = "alert alert-info text-white";
+  if (toast.status === "success") {
+    className = "alert alert-success text-white";
+  }
   return (
     <div className={className}>
       <div className="flex flex-col">

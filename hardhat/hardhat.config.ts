@@ -11,7 +11,7 @@ const ALCHEMY_GOERLI_API_KEY = process.env.ALCHEMY_GOERLI_API_KEY;
 const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY;
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.7",
+  solidity: "0.8.16",
   defaultNetwork: "goerli",
   networks: {
     goerli: {

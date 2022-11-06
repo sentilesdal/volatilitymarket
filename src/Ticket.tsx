@@ -13,6 +13,7 @@ import {
   VolatilityMarket__factory,
 } from "./typechain-types";
 import { TicketStruct } from "./Types";
+import { toasts } from "./Toaster";
 
 interface TicketProps {
   ticket: TicketStruct;
@@ -24,9 +25,10 @@ export function Ticket(props: TicketProps) {
   const { data: signerResult } = useSigner();
   const signer = signerResult as Signer;
   const { address } = useAccount();
-  const { identifier, ancillaryData } = useMarketInfo(addresses.TicketManager);
+  const { identifier, ancillaryData, blockBuffer } = useMarketInfo(
+    addresses.TicketManager
+  );
   const { ticket } = props;
-  console.log("ticket", ticket);
   const { id, betTime, amount, direction, owner, verifyTime } = ticket;
 
   const created = new Date(betTime.toNumber() * 1000);
@@ -34,6 +36,7 @@ export function Ticket(props: TicketProps) {
   const handleVerifyTicket = useHandleVerifyTicket(signer, id);
 
   const handleRedeemTicket = useHandleRedeemTicket(signer, id);
+  console.log("verifyTime", verifyTime);
 
   const priceRequest = usePriceRequest(
     addresses.TicketManager,
@@ -51,6 +54,16 @@ export function Ticket(props: TicketProps) {
 
   const initialPrice = priceRequest?.proposedPrice;
   const verifyPrice = verifyPriceRequest?.proposedPrice;
+  const showRedeem =
+    address === owner && !verifyTime.eq(betTime) && !ticket.claimed;
+  const showClaimed = address === owner && ticket.claimed;
+
+  const showVerify = address === owner && verifyTime.eq(betTime);
+  const showExpired =
+    address === owner &&
+    verifyTime.eq(betTime) &&
+    blockBuffer &&
+    betTime.toNumber() + blockBuffer < Math.floor(Date.now() / 1000);
 
   return (
     <div className="card w-96 bg-base-100 shadow-xl p-4 " tabIndex={0}>
@@ -124,8 +137,18 @@ export function Ticket(props: TicketProps) {
         )}
 
         <div className="flex justify-between">
-          {address === owner && !ticket.claimed && (
-            <div className="card-actions justify-end">
+          {showClaimed && (
+            <div className={`card-actions justify-end}`}>
+              <button className="btn btn-success text-white">Claimed</button>
+            </div>
+          )}
+
+          {!showClaimed && (
+            <div
+              className={`card-actions justify-end ${
+                showRedeem ? "" : "invisible"
+              }`}
+            >
               <button
                 className="btn btn-secondary"
                 onClick={() => handleRedeemTicket()}
@@ -135,8 +158,19 @@ export function Ticket(props: TicketProps) {
             </div>
           )}
 
-          {address === owner && verifyTime.eq(betTime) && (
-            <div className="card-actions justify-end">
+          <div
+            className={`card-actions justify-end ${
+              showExpired ? "" : "invisible"
+            }`}
+          >
+            <button className="btn btn-error text-white">Expired</button>
+          </div>
+          {!showExpired && (
+            <div
+              className={`card-actions justify-end ${
+                showVerify ? "" : "invisible"
+              }`}
+            >
               <button
                 className="btn btn-primary"
                 onClick={() => handleVerifyTicket()}
@@ -152,7 +186,7 @@ export function Ticket(props: TicketProps) {
 }
 
 function useHandleVerifyTicket(signer: Signer | undefined, id: BigNumber) {
-  return useCallback(() => {
+  return useCallback(async () => {
     if (!signer) {
       return;
     }
@@ -160,12 +194,29 @@ function useHandleVerifyTicket(signer: Signer | undefined, id: BigNumber) {
       addresses.TicketManager,
       signer
     );
-    volatilityMarket.verifyBet(id);
+    const tx = await volatilityMarket.verifyBet(id);
+
+    toasts[tx.hash] = {
+      txHash: tx.hash,
+      message: "Transaction submitted",
+      status: "info",
+    };
+    const timeoutId = setTimeout(() => delete toasts[tx.hash], 50000);
+
+    tx.wait(1).then(() => {
+      clearTimeout(timeoutId);
+      toasts[tx.hash] = {
+        txHash: tx.hash,
+        message: "Transaction succeeded",
+        status: "success",
+      };
+      setTimeout(() => delete toasts[tx.hash], 50000);
+    });
   }, [id, signer]);
 }
 
 function useHandleRedeemTicket(signer: Signer | undefined, id: BigNumber) {
-  return useCallback(() => {
+  return useCallback(async () => {
     if (!signer) {
       return;
     }
@@ -173,7 +224,23 @@ function useHandleRedeemTicket(signer: Signer | undefined, id: BigNumber) {
       addresses.TicketManager,
       signer
     );
-    volatilityMarket.redeemTicket(id);
+    const tx = await volatilityMarket.redeemTicket(id);
+    toasts[tx.hash] = {
+      txHash: tx.hash,
+      message: "Transaction submitted",
+      status: "info",
+    };
+    const timeoutId = setTimeout(() => delete toasts[tx.hash], 50000);
+
+    tx.wait(1).then(() => {
+      clearTimeout(timeoutId);
+      toasts[tx.hash] = {
+        txHash: tx.hash,
+        message: "Transaction succeeded",
+        status: "success",
+      };
+      setTimeout(() => delete toasts[tx.hash], 50000);
+    });
   }, [id, signer]);
 }
 

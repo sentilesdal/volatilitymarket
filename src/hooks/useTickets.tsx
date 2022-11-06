@@ -5,7 +5,6 @@ import { VolatilityMarket__factory } from "../typechain-types";
 import { addresses } from "../addresses";
 import { TicketStruct } from "../Types";
 
-
 export function useTickets() {
   const provider = useProvider({ chainId: chainId.goerli });
   const volatilityMarket = VolatilityMarket__factory.connect(
@@ -16,7 +15,7 @@ export function useTickets() {
   const [tickets, setTickets] = useState<TicketStruct[]>([]);
 
   useEffect(() => {
-    fetchData();
+    setInterval(fetchData, 1000);
     async function fetchData() {
       try {
         const filter = volatilityMarket.filters.TicketCreated();
@@ -25,8 +24,10 @@ export function useTickets() {
         const getTickets = ids.map((id) =>
           volatilityMarket.callStatic.tickets(id)
         );
-        const tickets: TicketStruct[] = await Promise.all(getTickets);
-        setTickets(tickets);
+        const _tickets: TicketStruct[] = await Promise.all(getTickets);
+        if (tickets.length !== _tickets.length) {
+          setTickets(_tickets);
+        }
       } catch (error) {
         console.log("error", error);
       }

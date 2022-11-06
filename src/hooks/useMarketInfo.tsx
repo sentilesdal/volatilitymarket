@@ -12,6 +12,7 @@ export function useMarketInfo(address: string) {
   const [identifier, setIdentifier] = useState("");
   const [ancillaryData, setAncillaryData] = useState("");
   const [tokenAddress, setTokenAddress] = useState("");
+  const [blockBuffer, setBlockBuffer] = useState<number>();
   const tvl = useTokenBalance(tokenAddress, address);
 
   useEffect(() => {
@@ -21,9 +22,11 @@ export function useMarketInfo(address: string) {
         const tokenAddress = await volatilityMarket.token();
         const id = await volatilityMarket.identifier();
         const data = await volatilityMarket.ancillaryData();
+        const buffer = await volatilityMarket.blockBuffer();
         setTokenAddress(tokenAddress);
         setIdentifier(id);
         setAncillaryData(data);
+        setBlockBuffer(buffer.toNumber());
       } catch (error) {
         console.log("error", error);
       }
@@ -32,5 +35,5 @@ export function useMarketInfo(address: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
-  return { tokenAddress, tvl, identifier, ancillaryData };
+  return { tokenAddress, tvl, identifier, ancillaryData, blockBuffer };
 }

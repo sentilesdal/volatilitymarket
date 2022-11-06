@@ -6,9 +6,11 @@ export function Tickets() {
   const tickets = useTickets();
   return (
     <div className="flex flex-col w-96 text-center space-y-2">
-      {tickets.reverse().map((ticket) => (
-        <Ticket key={ticket.id.toHexString()} ticket={ticket} />
-      ))}
+      {tickets
+        .sort((a, b) => b.betTime.toNumber() - a.betTime.toNumber())
+        .map((ticket) => (
+          <Ticket key={ticket.id.toHexString()} ticket={ticket} />
+        ))}
     </div>
   );
 }
