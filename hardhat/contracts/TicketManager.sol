@@ -9,27 +9,27 @@ contract VolatilityMarket {
         OptimisticOracleV2Interface(0xA5B9d8a0B0Fa04Ba71BDD68069661ED5C0848884);
 
     // Use the yes no idetifier to ask arbitary questions, such as the weather on a particular day.
-    bytes32 identifier = bytes32("VIX");
+    bytes32 public identifier = bytes32("VIX");
 
     // Post the question in ancillary data. Note that this is a simplified form of ancillry data to work as an example. A real
     // world prodition market would use something slightly more complex and would need to conform to a more robust structure.
-    bytes ancillaryData =
+    bytes public ancillaryData =
         bytes(
             "https://snapshot.org/#/volatilityprotocol.eth/proposal/0xe9a7dc5c9ccab0a1369440fa887bb50672fa80a50e44182f0a170680499bcaa3"
         );
 
-    uint256 requestTime = 0; // Store the request time so we can re-use it later.
+    uint256 public requestTime = 0; // Store the request time so we can re-use it later.
 
-    address owner;
+    address public owner;
 
     IERC20 public token;
 
-    uint256 disposableFunds = 0 ether;
-    uint256 requiredFunds = 1 wei;
-    uint256 blockBuffer = 10 minutes;
-    uint256 ticketCount = 0;
+    uint256 public disposableFunds = 0 ether;
+    uint256 public requiredFunds = 1 wei;
+    uint256 public blockBuffer = 10 minutes;
+    uint256 public ticketCount = 0;
 
-    uint256 ticketCounter = 0;
+    uint256 public ticketCounter = 0;
 
     enum Direction {
         NONE,

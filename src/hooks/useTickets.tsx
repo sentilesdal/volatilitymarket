@@ -4,7 +4,7 @@ import { chainId, useProvider } from "wagmi";
 import { VolatilityMarket__factory } from "../typechain-types";
 import { addresses } from "../addresses";
 
-type TicketStruct = [
+export type TicketStruct = [
   BigNumber,
   string,
   BigNumber,
@@ -21,6 +21,7 @@ type TicketStruct = [
   direction: number;
   claimed: boolean;
 };
+
 export function useTickets() {
   const provider = useProvider({ chainId: chainId.goerli });
   const volatilityMarket = VolatilityMarket__factory.connect(
