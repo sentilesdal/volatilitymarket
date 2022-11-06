@@ -29,9 +29,9 @@ function App() {
 export default App;
 function Header() {
   return (
-    <div className="flex justify-between p-2 w-full">
+    <div className="text-sm flex justify-between p-2 w-full">
       <h1 className="text-5xl font-bold">Volatility Protocol</h1>
-      <ConnectButton label="Connect" />
+      <ConnectButton chainStatus="icon" label="Connect" />
     </div>
   );
 }

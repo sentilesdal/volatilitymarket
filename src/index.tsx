@@ -5,7 +5,12 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "@rainbow-me/rainbowkit/styles.css";
 
-import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+import {
+  RainbowKitProvider,
+  darkTheme,
+  midnightTheme,
+  Theme,
+} from "@rainbow-me/rainbowkit";
 import { WagmiConfig } from "wagmi";
 import { wagmiClient, chains } from "./provider";
 
@@ -18,9 +23,20 @@ root.render(
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider
         chains={chains}
-        theme={darkTheme({
-          accentColor: "hsl(var(--p) / var(--tw-bg-opacity))",
-        })}
+        theme={
+          {
+            ...midnightTheme({
+              accentColor: "hsl(var(--b1) / var(--bg-opacity))",
+              fontStack: "system",
+            }),
+
+            colors: {
+              connectButtonBackground: "hsl(var(--b1) / var(--tw-bg-opacity))",
+              generalBorder: "hsl(var(--b1) / var(--tw-bg-opacity))",
+              modalBorder: "hsl(var(--b1) / var(--tw-bg-opacity))",
+            },
+          } as Theme
+        }
         modalSize="compact"
       >
         <App />
