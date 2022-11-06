@@ -24,7 +24,7 @@ contract VolatilityMarket {
 
     IERC20 public token;
 
-    uint256 public disposableFunds = 0 ether;
+    uint256 public disposableFunds = 0.5 ether;
     uint256 public requiredFunds = 1 wei;
     uint256 public blockBuffer = 10 minutes;
     uint256 public ticketCount = 0;
