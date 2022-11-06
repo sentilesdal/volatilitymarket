@@ -3,10 +3,9 @@ import "./App.css";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
-import { Balance } from "./Balance";
 import { CreateTicket } from "./CreateTicket";
-import { Tickets } from "./Tickets";
 import { MarketInfo } from "./MarketInfo";
+import { Tickets } from "./Tickets";
 
 export const YourApp = () => {};
 
