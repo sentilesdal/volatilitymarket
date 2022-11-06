@@ -1,18 +1,30 @@
-import { ethers } from "hardhat";
+import { BytesLike, Wallet } from "ethers";
+import hre, { ethers } from "hardhat";
+import { addresses } from "../../src/addresses";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  const privateKey = process.env.BOT_PRIVATE_KEY as BytesLike;
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  if (!privateKey) {
+    console.log("no private key provided");
+    return;
+  }
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  const wallet = new Wallet(privateKey);
+  const provider = hre.ethers.getDefaultProvider();
+  const signer = wallet.connect(provider);
+  console.log("signer", signer.address);
 
-  await lock.deployed();
+  const Market = await ethers.getContractFactory("VolatilityMarket");
+  const market = await Market.connect(signer).deploy(addresses.token);
 
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
+  await market.deployed();
+  await hre.run("verify:verify", {
+    address: market.address,
+    constructorArguments: [addresses.token],
+  });
+
+  return;
 }
 
 // We recommend this pattern to be able to use async/await everywhere
