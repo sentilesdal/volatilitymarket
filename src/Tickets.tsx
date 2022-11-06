@@ -5,9 +5,9 @@ import { Ticket } from "./Ticket";
 export function Tickets() {
   const tickets = useTickets();
   return (
-    <div className="flex flex-col h-full text-center space-y-2">
+    <div className="flex flex-col w-96 text-center space-y-2">
       {tickets.map((ticket) => (
-        <Ticket key={ticket.id.toHexString()} id={ticket.id.toHexString()} />
+        <Ticket key={ticket.id.toHexString()} ticket={ticket} />
       ))}
     </div>
   );

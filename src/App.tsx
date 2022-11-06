@@ -46,7 +46,3 @@ function Body() {
     </div>
   );
 }
-
-export interface TicketProps {
-  id: string;
-}
