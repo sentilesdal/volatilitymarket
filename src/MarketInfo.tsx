@@ -3,6 +3,7 @@ import { formatEther } from "ethers/lib/utils";
 import React from "react";
 
 import { addresses } from "./addresses";
+import { AvailableMoney } from "./AvailableMoney";
 import { formatAddress } from "./formatAddress";
 import { useMarketInfo } from "./hooks/useMarketInfo";
 import { useTokenInfo } from "./hooks/useTokenInfo";
@@ -10,6 +11,7 @@ import { useTokenInfo } from "./hooks/useTokenInfo";
 export function MarketInfo() {
   const { tokenAddress, tvl } = useMarketInfo(addresses.TicketManager);
   const { name } = useTokenInfo(tokenAddress);
+  const { totalAvailableAmount } = AvailableMoney();
 
   return (
     <div className="flex flex-col card w-96 bg-base-100 shadow-xl justify-items-center p-4 align-middle">
@@ -40,7 +42,7 @@ export function MarketInfo() {
           <span className="label-text">Claimable</span>
         </label>
         <label className="label text-sm">
-          <span className="label-text">{0}</span>
+          <span className="label-text">{formatEther(totalAvailableAmount || BigNumber.from(0))}</span>
         </label>
       </div>
 

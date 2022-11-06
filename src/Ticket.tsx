@@ -6,7 +6,7 @@ import { addresses } from "./addresses";
 
 import { formatAddress } from "./formatAddress";
 import { useMarketInfo } from "./hooks/useMarketInfo";
-import { TicketStruct } from "./hooks/useTickets";
+import { TicketStruct } from "./Types";
 import {
   OptimisticOracleV2Interface,
   OptimisticOracleV2Interface__factory,

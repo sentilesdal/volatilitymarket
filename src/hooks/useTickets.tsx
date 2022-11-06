@@ -3,24 +3,8 @@ import { BigNumber } from "ethers";
 import { chainId, useProvider } from "wagmi";
 import { VolatilityMarket__factory } from "../typechain-types";
 import { addresses } from "../addresses";
+import { TicketStruct } from "../Types";
 
-export type TicketStruct = [
-  BigNumber,
-  string,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  number,
-  boolean
-] & {
-  id: BigNumber;
-  owner: string;
-  betTime: BigNumber;
-  verifyTime: BigNumber;
-  amount: BigNumber;
-  direction: number;
-  claimed: boolean;
-};
 
 export function useTickets() {
   const provider = useProvider({ chainId: chainId.goerli });
