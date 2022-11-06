@@ -42,8 +42,6 @@ export function CreateTicket() {
 
   const hasEnoughAllowance = allowance?.gt(parseEther(amount.toString()));
 
-  console.log("balance", balance);
-  console.log("amount", amount);
   const validAmount =
     parseEther(amount).lte(parseEther(balance)) &&
     parseEther(amount).lte(maxAmount) &&

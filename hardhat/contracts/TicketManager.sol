@@ -122,26 +122,24 @@ contract VolatilityMarket {
 
         Direction choice = currentTicket.direction;
 
-        int256 oldPrice = oo
-            .getRequest(
-                address(this),
-                identifier,
-                currentTicket.betTime,
-                ancillaryData
-            )
-            .resolvedPrice;
-        int256 newPrice = oo
-            .getRequest(
-                address(this),
-                identifier,
-                currentTicket.verifyTime,
-                ancillaryData
-            )
-            .resolvedPrice;
+        OptimisticOracleV2Interface.Request memory oldRequest = oo.getRequest(
+            address(this),
+            identifier,
+            currentTicket.betTime,
+            ancillaryData
+        );
+        OptimisticOracleV2Interface.Request memory newRequest = oo.getRequest(
+            address(this),
+            identifier,
+            currentTicket.verifyTime,
+            ancillaryData
+        );
 
         if (
-            ((choice == Direction.UP) && (oldPrice < newPrice)) ||
-            ((choice == Direction.DOWN) && (oldPrice > newPrice))
+            ((choice == Direction.UP) &&
+                (oldRequest.proposedPrice < newRequest.proposedPrice)) ||
+            ((choice == Direction.DOWN) &&
+                (oldRequest.proposedPrice > newRequest.proposedPrice))
         ) {
             token.transfer(msg.sender, currentTicket.amount * 2);
             disposableFunds = disposableFunds - (currentTicket.amount);
@@ -173,6 +171,13 @@ contract VolatilityMarket {
             reward
         );
         oo.setCustomLiveness(identifier, requestTime, ancillaryData, 30);
+        oo.proposePrice(
+            address(this),
+            identifier,
+            requestTime,
+            ancillaryData,
+            1 ether + block.timestamp
+        );
     }
 
     // Settle the request once it's gone through the liveness period of 30 seconds. This acts the finalize the voted on price.
