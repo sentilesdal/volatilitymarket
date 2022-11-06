@@ -1,17 +1,31 @@
-import React, { useCallback, useState } from "react";
+import React, { ChangeEventHandler, useCallback, useState } from "react";
 
-import { Signer } from "ethers";
+import { BigNumber, Signer } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { useSigner } from "wagmi";
+import { useAccount, useContractRead, useSigner } from "wagmi";
 
 import { addresses } from "./addresses";
-import { VolatilityMarket__factory } from "./typechain-types";
+import { ApproveButton } from "./ApproveButton";
+import { useMarketInfo } from "./hooks/useMarketInfo";
+import { ERC20__factory, VolatilityMarket__factory } from "./typechain-types";
 
 export function CreateTicket() {
   const { data: signerResult } = useSigner();
   const signer = signerResult as Signer;
   const [direction, setDirection] = useState(true);
   const handleCreateTicket = useHandleCreateTicket(signer, direction);
+  const { tokenAddress } = useMarketInfo(addresses.TicketManager);
+  const allowance = useAllowance(tokenAddress, addresses.TicketManager);
+  console.log("allowance", allowance);
+
+  const [amount, setAmount] = useState(0);
+  const handleChangeAmount = useCallback<ChangeEventHandler>((event) => {
+    console.log("event", (event?.target as any).value);
+    setAmount((event.target as any).value);
+  }, []);
+
+  const hasEnoughAllowance = allowance?.gt(parseEther(amount.toString()));
+
   return (
     <div className="flex flex-col w-full">
       <div className="form-control w-full max-w-xs">
@@ -19,9 +33,11 @@ export function CreateTicket() {
           <span className="label-text">Amount</span>
         </label>
         <input
-          type="text"
+          type="number"
           placeholder="0.00"
           className="input input-bordered w-full max-w-xs"
+          value={amount}
+          onChange={handleChangeAmount}
         />
         <label className="label">
           <span className="label-text-alt">min 1.0</span>
@@ -52,9 +68,16 @@ export function CreateTicket() {
           </span>
         </div>
       </div>
-      <button onClick={() => handleCreateTicket()} className="btn btn-primary">
-        Create new bid
-      </button>
+      {hasEnoughAllowance ? (
+        <button
+          onClick={() => handleCreateTicket()}
+          className="btn btn-primary"
+        >
+          Create new bid
+        </button>
+      ) : (
+        <ApproveButton />
+      )}
     </div>
   );
 }
@@ -70,4 +93,16 @@ function useHandleCreateTicket(signer: Signer | undefined, direction: boolean) {
     );
     volatilityMarket.createBet(parseEther("0.001"), direction ? 1 : 2);
   }, [direction, signer]);
+}
+
+function useAllowance(tokenAddress: string, spenderAddress: string) {
+  const { address: accountAddress } = useAccount();
+  const { data: allowance } = useContractRead({
+    abi: ERC20__factory.abi,
+    address: tokenAddress,
+    functionName: "allowance",
+    args: [accountAddress, spenderAddress],
+  });
+
+  return allowance as BigNumber;
 }

@@ -1,18 +1,18 @@
+import "@rainbow-me/rainbowkit/styles.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
-import "@rainbow-me/rainbowkit/styles.css";
 
 import {
-  RainbowKitProvider,
-  darkTheme,
   midnightTheme,
+  RainbowKitProvider,
   Theme,
 } from "@rainbow-me/rainbowkit";
 import { WagmiConfig } from "wagmi";
-import { wagmiClient, chains } from "./provider";
+
+import App from "./App";
+import { chains, wagmiClient } from "./provider";
+import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
