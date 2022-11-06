@@ -1,15 +1,11 @@
-import React, { useCallback } from "react";
+import React from "react";
 import "./App.css";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { constants, Signer } from "ethers";
 
-import { addresses } from "./addresses";
-import { CreateTicket } from "./CreateTicket";
-import { IERC20__factory, VolatilityMarket__factory } from "./typechain-types";
 import { Balance } from "./Balance";
+import { CreateTicket } from "./CreateTicket";
 import { Tickets } from "./Tickets";
-import { ApproveButton } from "./ApproveButton";
 
 export const YourApp = () => {};
 
@@ -41,7 +37,6 @@ function Body() {
     <div className="flex justify-around w-full">
       <div className="flex flex-col space-y-4 align-middle">
         <Balance />
-        <ApproveButton />
         <CreateTicket />
       </div>
       <Tickets />
@@ -51,19 +46,4 @@ function Body() {
 
 export interface TicketProps {
   id: string;
-}
-
-export function useHandleApprove(signer: Signer | undefined) {
-  return useCallback(async () => {
-    if (!signer) {
-      return;
-    }
-    const volatilityMarket = VolatilityMarket__factory.connect(
-      addresses.TicketManager,
-      signer
-    );
-    const tokenAddress = await volatilityMarket.token();
-    const token = IERC20__factory.connect(tokenAddress, signer);
-    await token.approve(addresses.TicketManager, constants.MaxUint256);
-  }, [signer]);
 }

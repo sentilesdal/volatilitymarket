@@ -1,9 +1,12 @@
 import React from "react";
 import { formatEther } from "ethers/lib/utils";
 import { useTokenInfo } from "./hooks/useTokenInfo";
+import { useMarketInfo } from "./hooks/useMarketInfo";
+import { addresses } from "./addresses";
 
 export function Balance() {
-  const { balance, name } = useTokenInfo();
+  const { tokenAddress } = useMarketInfo(addresses.TicketManager);
+  const { balance, name } = useTokenInfo(tokenAddress);
 
   return (
     <div className="form-control w-full max-w-xs">

@@ -1,18 +1,13 @@
 import { useEffect, useState } from "react";
+
 import { BigNumber } from "ethers";
 import { chainId, useAccount, useProvider } from "wagmi";
-import { VolatilityMarket__factory } from "../typechain-types";
+
 import { ERC20__factory } from "../typechain-types";
-import { addresses } from "../addresses";
 
-export function useTokenInfo() {
+export function useTokenInfo(address: string) {
   const provider = useProvider({ chainId: chainId.goerli });
-  const { address } = useAccount();
-  const volatilityMarket = VolatilityMarket__factory.connect(
-    addresses.TicketManager,
-    provider
-  );
-
+  const { address: accountAddress } = useAccount();
   const [balance, setBalance] = useState<BigNumber>();
   const [name, setName] = useState<string>();
   const [decimals, setDecimals] = useState<number>();
@@ -21,10 +16,9 @@ export function useTokenInfo() {
     fetchData();
     async function fetchData() {
       try {
-        const tokenAddress = await volatilityMarket.token();
-        const token = ERC20__factory.connect(tokenAddress, provider);
-        if (address) {
-          const tokenBalance = await token.balanceOf(address);
+        const token = ERC20__factory.connect(address, provider);
+        if (accountAddress) {
+          const tokenBalance = await token.balanceOf(accountAddress);
           setBalance(tokenBalance);
         }
         const tokenName = await token.name();
