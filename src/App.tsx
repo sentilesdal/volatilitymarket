@@ -6,6 +6,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CreateTicket } from "./CreateTicket";
 import { MarketInfo } from "./MarketInfo";
 import { Tickets } from "./Tickets";
+import { ReactComponent as Logo } from "./pulse-14.svg";
 
 export const YourApp = () => {};
 
@@ -26,7 +27,14 @@ export default App;
 function Header() {
   return (
     <div className="text-sm flex justify-between p-4 w-full">
-      <h1 className="text-5xl font-thin">Volatility Protocol</h1>
+      <div className="flex text-center justify-center align-middle space-x-4">
+        <h1 className="text-5xl font-thin text-center">Volatility Protocol</h1>
+        <Logo
+          fill="currentColor"
+          stroke="currentColor"
+          className="h-16 w-16 text-violet-500"
+        />
+      </div>
       <ConnectButton chainStatus="icon" label="Connect Wallet" />
     </div>
   );
