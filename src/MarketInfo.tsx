@@ -42,7 +42,9 @@ export function MarketInfo() {
           <span className="label-text">Claimable</span>
         </label>
         <label className="label text-sm">
-          <span className="label-text">{formatEther(totalAvailableAmount || BigNumber.from(0))}</span>
+          <span className="label-text">
+            {formatEther(totalAvailableAmount || BigNumber.from(0))}
+          </span>
         </label>
       </div>
 
