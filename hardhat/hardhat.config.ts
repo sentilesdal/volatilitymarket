@@ -9,7 +9,6 @@ dotenv.config({ path: __dirname + "/.env" });
 
 const ALCHEMY_GOERLI_API_KEY = process.env.ALCHEMY_GOERLI_API_KEY;
 const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY;
-console.log("ETHERSCAN_KEY", ETHERSCAN_KEY);
 
 const config: HardhatUserConfig = {
   solidity: "0.8.7",
