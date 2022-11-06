@@ -5,8 +5,9 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 import { CreateTicket } from "./CreateTicket";
 import { MarketInfo } from "./MarketInfo";
-import { Tickets } from "./Tickets";
 import { ReactComponent as Logo } from "./pulse-14.svg";
+import { Tickets } from "./Tickets";
+import { Toaster } from "./Toaster";
 
 export const YourApp = () => {};
 
@@ -50,6 +51,7 @@ function Body() {
         <CreateTicket />
       </div>
       <Tickets />
+      <Toaster />
     </div>
   );
 }
