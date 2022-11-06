@@ -2,7 +2,7 @@ import React, { ChangeEventHandler, useCallback, useState } from "react";
 
 import { Signer } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { useBalance, useSigner } from "wagmi";
+import { useAccount, useBalance, useSigner } from "wagmi";
 
 import { addresses } from "./addresses";
 import { ApproveButton } from "./ApproveButton";
@@ -16,11 +16,15 @@ const minAmount = parseEther("0.01");
 
 export function CreateTicket() {
   const { data: signerResult } = useSigner();
+  const { address } = useAccount();
   const signer = signerResult as Signer;
   const [direction, setDirection] = useState(true);
   const { tokenAddress } = useMarketInfo(addresses.TicketManager);
   const allowance = useAllowance(tokenAddress, addresses.TicketManager);
-  const { data: balanceResult } = useBalance({ addressOrName: tokenAddress });
+  const { data: balanceResult } = useBalance({
+    addressOrName: address,
+    token: tokenAddress as `0x${string}`,
+  });
   const balance = balanceResult?.formatted || "0";
 
   const [_amount, setAmount] = useState("");
@@ -37,6 +41,8 @@ export function CreateTicket() {
 
   const hasEnoughAllowance = allowance?.gt(parseEther(amount.toString()));
 
+  console.log("balance", balance);
+  console.log("amount", amount);
   const validAmount =
     parseEther(amount).lte(parseEther(balance)) &&
     parseEther(amount).lte(maxAmount) &&
