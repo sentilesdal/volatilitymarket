@@ -16,9 +16,9 @@ function getAvailableFunds(
   volatilityMarket: VolatilityMarket
 ) {
   let totalAmount = BigNumber.from(0);
-  const waitTime = 600000;
+  const waitTime = 500000;
   tickets.map((ticket) => {
-    if (ticket.betTime.toNumber() + waitTime < Date.now()) {
+    if ((ticket.betTime.toNumber() + waitTime) < Date.now()) {
       totalAmount = totalAmount.add(ticket.amount);
     }
   });
