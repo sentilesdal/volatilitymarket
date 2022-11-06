@@ -10,6 +10,8 @@ import { Balance } from "./Balance";
 import { useAllowance } from "./hooks/useAllowance";
 import { useMarketInfo } from "./hooks/useMarketInfo";
 import { VolatilityMarket__factory } from "./typechain-types";
+import { toasts } from "./Toaster";
+import { time } from "console";
 
 const maxAmount = parseEther("1");
 const minAmount = parseEther("0.01");
@@ -112,7 +114,7 @@ function useHandleCreateTicket(
   amount: string,
   direction: boolean
 ) {
-  return useCallback(() => {
+  return useCallback(async () => {
     if (!signer) {
       return;
     }
@@ -120,6 +122,17 @@ function useHandleCreateTicket(
       addresses.TicketManager,
       signer
     );
-    volatilityMarket.createBet(parseEther(amount), direction ? 1 : 2);
+    const tx = await volatilityMarket.createBet(
+      parseEther(amount),
+      direction ? 1 : 2
+    );
+    toasts[tx.hash] = { txHash: tx.hash };
+    const timeoutId = setTimeout(() => delete toasts[tx.hash], 5000);
+
+    tx.wait(1).then(() => {
+      clearTimeout(timeoutId);
+      toasts[tx.hash] = { txHash: tx.hash };
+      setTimeout(() => delete toasts[tx.hash], 5000);
+    });
   }, [amount, direction, signer]);
 }
