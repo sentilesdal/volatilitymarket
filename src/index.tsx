@@ -31,7 +31,7 @@ root.render(
             }),
 
             colors: {
-              connectButtonBackground: "hsl(var(--b1) / var(--tw-bg-opacity))",
+              connectButtonBackground: "bg-base-100",
               generalBorder: "hsl(var(--b1) / var(--tw-bg-opacity))",
               modalBorder: "hsl(var(--b1) / var(--tw-bg-opacity))",
             },
