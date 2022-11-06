@@ -9,7 +9,7 @@ export function Balance() {
   const { balance, name } = useTokenInfo(tokenAddress);
 
   return (
-    <div className="form-control w-full max-w-xs">
+    <div className="form-control w-full">
       <label className="label">
         <span className="label-text ">{`${name} balance`}</span>
       </label>

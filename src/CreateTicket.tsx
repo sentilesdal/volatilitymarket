@@ -1,50 +1,68 @@
 import React, { ChangeEventHandler, useCallback, useState } from "react";
 
-import { BigNumber, Signer } from "ethers";
+import { Signer } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useBalance, useSigner } from "wagmi";
 
 import { addresses } from "./addresses";
 import { ApproveButton } from "./ApproveButton";
+import { Balance } from "./Balance";
+import { useAllowance } from "./hooks/useAllowance";
 import { useMarketInfo } from "./hooks/useMarketInfo";
-import { ERC20__factory, VolatilityMarket__factory } from "./typechain-types";
+import { VolatilityMarket__factory } from "./typechain-types";
+
+const maxAmount = parseEther("1");
+const minAmount = parseEther("0.01");
 
 export function CreateTicket() {
   const { data: signerResult } = useSigner();
   const signer = signerResult as Signer;
   const [direction, setDirection] = useState(true);
-  const handleCreateTicket = useHandleCreateTicket(signer, direction);
   const { tokenAddress } = useMarketInfo(addresses.TicketManager);
   const allowance = useAllowance(tokenAddress, addresses.TicketManager);
-  console.log("allowance", allowance);
+  const { data: balanceResult } = useBalance({ addressOrName: tokenAddress });
+  const balance = balanceResult?.formatted || "0";
 
-  const [amount, setAmount] = useState(0);
+  const [_amount, setAmount] = useState("");
+  const amount = _amount || "0";
+  const handleCreateTicket = useHandleCreateTicket(
+    signer,
+    amount.toString(),
+    direction
+  );
+
   const handleChangeAmount = useCallback<ChangeEventHandler>((event) => {
-    console.log("event", (event?.target as any).value);
     setAmount((event.target as any).value);
   }, []);
 
   const hasEnoughAllowance = allowance?.gt(parseEther(amount.toString()));
 
+  const validAmount =
+    parseEther(amount).lte(parseEther(balance)) &&
+    parseEther(amount).lte(maxAmount) &&
+    parseEther(amount).gte(minAmount);
+
   return (
-    <div className="flex flex-col w-full">
-      <div className="form-control w-full max-w-xs">
+    <div className="flex flex-col card w-96 bg-base-100 shadow-xl justify-items-center p-4 align-middle">
+      <p className="font-thin">Create a bid</p>
+      <Balance />
+      <div className="form-control w-full">
         <label className="label">
           <span className="label-text">Amount</span>
         </label>
         <input
           type="number"
           placeholder="0.00"
-          className="input input-bordered w-full max-w-xs"
-          value={amount}
+          className="input input-bordered w-full"
+          value={_amount}
           onChange={handleChangeAmount}
         />
         <label className="label">
-          <span className="label-text-alt">min 1.0</span>
-          <span className="label-text-alt">max 10.0</span>
+          <span className="label-text-alt">min 0.01</span>
+          <span className="label-text-alt">max 1.0</span>
         </label>
       </div>
-      <div className="flex flex-col h-full pb-4">
+      <div className="flex flex-col pb-4">
         <label className="label">
           <span className="label-text">Bid direction</span>
         </label>
@@ -70,6 +88,7 @@ export function CreateTicket() {
       </div>
       {hasEnoughAllowance ? (
         <button
+          disabled={!validAmount}
           onClick={() => handleCreateTicket()}
           className="btn btn-primary"
         >
@@ -82,7 +101,11 @@ export function CreateTicket() {
   );
 }
 
-function useHandleCreateTicket(signer: Signer | undefined, direction: boolean) {
+function useHandleCreateTicket(
+  signer: Signer | undefined,
+  amount: string,
+  direction: boolean
+) {
   return useCallback(() => {
     if (!signer) {
       return;
@@ -91,18 +114,6 @@ function useHandleCreateTicket(signer: Signer | undefined, direction: boolean) {
       addresses.TicketManager,
       signer
     );
-    volatilityMarket.createBet(parseEther("0.001"), direction ? 1 : 2);
-  }, [direction, signer]);
-}
-
-function useAllowance(tokenAddress: string, spenderAddress: string) {
-  const { address: accountAddress } = useAccount();
-  const { data: allowance } = useContractRead({
-    abi: ERC20__factory.abi,
-    address: tokenAddress,
-    functionName: "allowance",
-    args: [accountAddress, spenderAddress],
-  });
-
-  return allowance as BigNumber;
+    volatilityMarket.createBet(parseEther(amount), direction ? 1 : 2);
+  }, [amount, direction, signer]);
 }

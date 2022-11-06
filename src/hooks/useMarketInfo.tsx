@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { chainId, useProvider } from "wagmi";
 
 import { VolatilityMarket__factory } from "../typechain-types";
+import { useTokenBalance } from "./useTokenBalance";
 
 export function useMarketInfo(address: string) {
   const provider = useProvider({ chainId: chainId.goerli });
   const volatilityMarket = VolatilityMarket__factory.connect(address, provider);
 
   const [tokenAddress, setTokenAddress] = useState("");
+  const tvl = useTokenBalance(tokenAddress, address);
 
   useEffect(() => {
     fetchData();
@@ -24,5 +26,5 @@ export function useMarketInfo(address: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
-  return { tokenAddress };
+  return { tokenAddress, tvl };
 }

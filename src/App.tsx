@@ -6,6 +6,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Balance } from "./Balance";
 import { CreateTicket } from "./CreateTicket";
 import { Tickets } from "./Tickets";
+import { MarketInfo } from "./MarketInfo";
 
 export const YourApp = () => {};
 
@@ -25,8 +26,8 @@ function App() {
 export default App;
 function Header() {
   return (
-    <div className="text-sm flex justify-between p-2 w-full">
-      <h1 className="text-5xl font-bold">Volatility Protocol</h1>
+    <div className="text-sm flex justify-between p-4 w-full">
+      <h1 className="text-5xl font-thin">Volatility Protocol</h1>
       <ConnectButton chainStatus="icon" label="Connect Wallet" />
     </div>
   );
@@ -34,9 +35,11 @@ function Header() {
 
 function Body() {
   return (
-    <div className="flex justify-around w-full">
-      <div className="flex flex-col space-y-4 align-middle">
-        <Balance />
+    <div className="flex justify-around w-full p-12">
+      <div>
+        <MarketInfo />
+      </div>
+      <div>
         <CreateTicket />
       </div>
       <Tickets />
