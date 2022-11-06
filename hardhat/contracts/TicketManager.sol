@@ -176,7 +176,7 @@ contract VolatilityMarket {
             identifier,
             requestTime,
             ancillaryData,
-            1 ether + block.timestamp
+            uint256(1 ether) + block.timestamp
         );
     }
 
