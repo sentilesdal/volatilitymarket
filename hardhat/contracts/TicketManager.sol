@@ -111,7 +111,7 @@ contract VolatilityMarket {
 
     //Ticket is redeemed only within the time period
     function redeemTicket(uint256 id) public {
-        ticket memory currentTicket = tickets[id];
+        ticket storage currentTicket = tickets[id];
         require(currentTicket.claimed == false, "Ticket claim require");
         require(msg.sender == currentTicket.owner, "Owner require check");
         require(
@@ -135,23 +135,34 @@ contract VolatilityMarket {
             ancillaryData
         );
 
-        if (
+        require(currentTicket.claimed == false, "ticket already claimed");
+        require(
             ((choice == Direction.UP) &&
                 (oldRequest.proposedPrice < newRequest.proposedPrice)) ||
-            ((choice == Direction.DOWN) &&
-                (oldRequest.proposedPrice > newRequest.proposedPrice))
-        ) {
-            token.transfer(msg.sender, currentTicket.amount * 2);
-            disposableFunds = disposableFunds - (currentTicket.amount);
-            currentTicket.claimed = true;
-        }
+                ((choice == Direction.DOWN) &&
+                    (oldRequest.proposedPrice > newRequest.proposedPrice)),
+            "cant claim, ticket lost"
+        );
+
+        currentTicket.claimed = true;
+        token.transfer(msg.sender, currentTicket.amount * 2);
+        disposableFunds = disposableFunds - (currentTicket.amount);
     }
 
     function collectDeadTickets(uint256[] calldata ids) external {
         uint256 i = 0;
         while (i < ids.length) {
-            ticket memory currentTicket = tickets[ids[i]];
+            ticket storage currentTicket = tickets[ids[i]];
+            require(currentTicket.claimed == false);
+            require(
+                ((choice == Direction.UP) &&
+                    (oldRequest.proposedPrice > newRequest.proposedPrice)) ||
+                    ((choice == Direction.DOWN) &&
+                        (oldRequest.proposedPrice < newRequest.proposedPrice)),
+                ""
+            );
             disposableFunds = disposableFunds + currentTicket.amount;
+            currentTicket.claimed = true;
         }
     }
 

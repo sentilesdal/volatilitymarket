@@ -19,10 +19,10 @@ export function useMarketInfo(address: string) {
     async function fetchData() {
       try {
         const tokenAddress = await volatilityMarket.token();
-        setTokenAddress(tokenAddress);
         const id = await volatilityMarket.identifier();
-        setIdentifier(id);
         const data = await volatilityMarket.ancillaryData();
+        setTokenAddress(tokenAddress);
+        setIdentifier(id);
         setAncillaryData(data);
       } catch (error) {
         console.log("error", error);

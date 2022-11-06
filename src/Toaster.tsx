@@ -34,8 +34,9 @@ interface ToastProps {
 }
 function Toast(props: ToastProps) {
   const { toast } = props;
+  const className = `alert alert-${toast.status} text-white`;
   return (
-    <div className={`alert alert-${toast.status} text-white`}>
+    <div className={className}>
       <div className="flex flex-col">
         <span className="text-sm">{toast.message}</span>
         <a

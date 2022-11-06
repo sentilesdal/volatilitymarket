@@ -1,18 +1,18 @@
-import { BigNumber, Signer } from "ethers";
-import { formatEther } from "ethers/lib/utils";
-import React, { useEffect, useState, useCallback } from "react";
-import { useAccount, useProvider } from "wagmi";
-import { addresses } from "./addresses";
-import { useSigner } from "wagmi";
+import React, { useCallback, useEffect, useState } from "react";
 
+import { BigNumber, Signer } from "ethers";
+import { formatEther, parseEther } from "ethers/lib/utils";
+import { useAccount, useProvider, useSigner } from "wagmi";
+
+import { addresses } from "./addresses";
 import { formatAddress } from "./formatAddress";
 import { useMarketInfo } from "./hooks/useMarketInfo";
-import { TicketStruct } from "./Types";
 import {
   OptimisticOracleV2Interface,
   OptimisticOracleV2Interface__factory,
   VolatilityMarket__factory,
 } from "./typechain-types";
+import { TicketStruct } from "./Types";
 
 interface TicketProps {
   ticket: TicketStruct;
@@ -26,7 +26,8 @@ export function Ticket(props: TicketProps) {
   const { address } = useAccount();
   const { identifier, ancillaryData } = useMarketInfo(addresses.TicketManager);
   const { ticket } = props;
-  const { id, betTime, amount, direction, owner } = ticket;
+  console.log("ticket", ticket);
+  const { id, betTime, amount, direction, owner, verifyTime } = ticket;
 
   const created = new Date(betTime.toNumber() * 1000);
 
@@ -41,7 +42,15 @@ export function Ticket(props: TicketProps) {
     ancillaryData
   );
 
-  const initialPrice = priceRequest?.resolvedPrice;
+  const verifyPriceRequest = usePriceRequest(
+    addresses.TicketManager,
+    identifier,
+    verifyTime.toNumber(),
+    ancillaryData
+  );
+
+  const initialPrice = priceRequest?.proposedPrice;
+  const verifyPrice = verifyPriceRequest?.proposedPrice;
 
   return (
     <div className="card w-96 bg-base-100 shadow-xl p-4 " tabIndex={0}>
@@ -88,8 +97,34 @@ export function Ticket(props: TicketProps) {
           </label>
         </div>
 
+        {!verifyTime.eq(betTime) ? (
+          <div className="flex justify-between">
+            <label className="label text-sm">
+              <span className="label-text">Price at verify</span>
+            </label>
+            <label className="label text-sm">
+              <span className="label-text">
+                {formatEther(verifyPrice || BigNumber.from(0))}
+              </span>
+            </label>
+          </div>
+        ) : (
+          <div className="flex justify-between">
+            <label className="label text-sm">
+              <span className="label-text">Price now</span>
+            </label>
+            <label className="label text-sm">
+              <span className="label-text">
+                {formatEther(
+                  parseEther("1").add(Math.floor(Date.now() / 1000))
+                )}
+              </span>
+            </label>
+          </div>
+        )}
+
         <div className="flex justify-between">
-          {address === owner && (
+          {address === owner && !ticket.claimed && (
             <div className="card-actions justify-end">
               <button
                 className="btn btn-secondary"
@@ -99,7 +134,8 @@ export function Ticket(props: TicketProps) {
               </button>
             </div>
           )}
-          {address === owner && (
+
+          {address === owner && verifyTime.eq(betTime) && (
             <div className="card-actions justify-end">
               <button
                 className="btn btn-primary"
@@ -125,7 +161,7 @@ function useHandleVerifyTicket(signer: Signer | undefined, id: BigNumber) {
       signer
     );
     volatilityMarket.verifyBet(id);
-  }, [signer]);
+  }, [id, signer]);
 }
 
 function useHandleRedeemTicket(signer: Signer | undefined, id: BigNumber) {
@@ -138,7 +174,7 @@ function useHandleRedeemTicket(signer: Signer | undefined, id: BigNumber) {
       signer
     );
     volatilityMarket.redeemTicket(id);
-  }, [signer]);
+  }, [id, signer]);
 }
 
 function usePriceRequest(
@@ -147,6 +183,7 @@ function usePriceRequest(
   timestamp: number,
   ancillaryData: string
 ) {
+  const { address } = useAccount();
   const provider = useProvider();
   const oracle = OptimisticOracleV2Interface__factory.connect(
     addresses.Oracle,
@@ -159,20 +196,22 @@ function usePriceRequest(
     fetchData();
     async function fetchData() {
       try {
-        const req = await oracle.getRequest(
-          requester,
-          identifier,
-          timestamp,
-          ancillaryData
-        );
-        setRequest(req);
+        if (timestamp) {
+          const req = await oracle.getRequest(
+            requester,
+            identifier,
+            timestamp,
+            ancillaryData
+          );
+          setRequest(req);
+        }
       } catch (error) {
         console.log("error", error);
       }
     }
     // only want this to run once
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [address, identifier, timestamp]);
 
   return request;
 }

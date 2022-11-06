@@ -128,7 +128,7 @@ function useHandleCreateTicket(
       message: "Transaction submitted",
       status: "info",
     };
-    const timeoutId = setTimeout(() => delete toasts[tx.hash], 5000);
+    const timeoutId = setTimeout(() => delete toasts[tx.hash], 50000);
 
     tx.wait(1).then(() => {
       clearTimeout(timeoutId);
@@ -137,7 +137,7 @@ function useHandleCreateTicket(
         message: "Transaction succeeded",
         status: "success",
       };
-      setTimeout(() => delete toasts[tx.hash], 5000);
+      setTimeout(() => delete toasts[tx.hash], 50000);
     });
   }, [amount, direction, signer]);
 }
