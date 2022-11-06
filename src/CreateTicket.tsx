@@ -1,11 +1,12 @@
 import React, { ChangeEventHandler, useCallback, useState } from "react";
 
 import { Signer } from "ethers";
-import { formatEther, parseEther } from "ethers/lib/utils";
+import { parseEther } from "ethers/lib/utils";
 import { useBalance, useSigner } from "wagmi";
 
 import { addresses } from "./addresses";
 import { ApproveButton } from "./ApproveButton";
+import { Balance } from "./Balance";
 import { useAllowance } from "./hooks/useAllowance";
 import { useMarketInfo } from "./hooks/useMarketInfo";
 import { VolatilityMarket__factory } from "./typechain-types";
@@ -36,26 +37,23 @@ export function CreateTicket() {
 
   const hasEnoughAllowance = allowance?.gt(parseEther(amount.toString()));
 
-  console.log("amount", amount);
-  console.log("balance", balance);
-  console.log("maxAmount", formatEther(maxAmount));
-  console.log("minAmount", formatEther(minAmount));
   const validAmount =
     parseEther(amount).lte(parseEther(balance)) &&
     parseEther(amount).lte(maxAmount) &&
     parseEther(amount).gte(minAmount);
-  console.log("validAmount", validAmount);
 
   return (
-    <div className="flex flex-col w-full">
-      <div className="form-control w-full max-w-xs">
+    <div className="flex flex-col card w-96 bg-base-100 shadow-xl justify-items-center p-4 align-middle">
+      <p className="font-thin">Create a bid</p>
+      <Balance />
+      <div className="form-control w-full">
         <label className="label">
           <span className="label-text">Amount</span>
         </label>
         <input
           type="number"
           placeholder="0.00"
-          className="input input-bordered w-full max-w-xs"
+          className="input input-bordered w-full"
           value={_amount}
           onChange={handleChangeAmount}
         />
@@ -64,7 +62,7 @@ export function CreateTicket() {
           <span className="label-text-alt">max 1.0</span>
         </label>
       </div>
-      <div className="flex flex-col h-full pb-4">
+      <div className="flex flex-col pb-4">
         <label className="label">
           <span className="label-text">Bid direction</span>
         </label>
