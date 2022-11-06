@@ -150,14 +150,28 @@ contract VolatilityMarket {
     }
 
     function collectDeadTickets(uint256[] calldata ids) external {
-        uint256 i = 0;
-        while (i < ids.length) {
+        for (uint256 i = 0; i < ids.length; i++) {
             ticket storage currentTicket = tickets[ids[i]];
+            OptimisticOracleV2Interface.Request memory oldRequest = oo
+                .getRequest(
+                    address(this),
+                    identifier,
+                    currentTicket.betTime,
+                    ancillaryData
+                );
+            OptimisticOracleV2Interface.Request memory newRequest = oo
+                .getRequest(
+                    address(this),
+                    identifier,
+                    currentTicket.verifyTime,
+                    ancillaryData
+                );
+
             require(currentTicket.claimed == false);
             require(
-                ((choice == Direction.UP) &&
+                ((currentTicket.direction == Direction.UP) &&
                     (oldRequest.proposedPrice > newRequest.proposedPrice)) ||
-                    ((choice == Direction.DOWN) &&
+                    ((currentTicket.direction == Direction.DOWN) &&
                         (oldRequest.proposedPrice < newRequest.proposedPrice)),
                 ""
             );
