@@ -1,4 +1,4 @@
-Volatility Market V1 Lite paper
+Volatility Market Lite Paper (V1)
 
 
 Volatility Market is a ticket-based prediction market where a user can bet on a binary outcome. A user places a nominal bet which at the moment is the amount of 0.01ETH. A user cannot bet more or less than this amount. 
